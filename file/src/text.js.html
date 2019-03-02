@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/text.js | pureimage</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="pureimage"><meta property="twitter:description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/joshmarinacci/node-pureimage.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Line.js~Line.html">Line</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Point.js~Point.html">Point</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/bitmap.js~Bitmap.html">Bitmap</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/context.js~Context.html">Context</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodeJPEGFromStream">decodeJPEGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodePNGFromStream">decodePNGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodeJPEGToStream">encodeJPEGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodePNGToStream">encodePNGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-make">make</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-measureText">measureText</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processTextPath">processTextPath</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-registerFont">registerFont</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clamp">clamp</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-colorStringToUint32">colorStringToUint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-NAMED_COLORS">NAMED_COLORS</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/text.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">const opentype = require(&apos;opentype.js&apos;);
+
+
+/**
+ * @type {object} Map containing all the fonts available for use
+ */
+var _fonts = { };
+
+/**
+ * The default font family to use for text
+ * @type {string}
+ */
+const DEFAULT_FONT_FAMILY = &apos;source&apos;;
+
+/**
+ * Register Font
+ *
+ * @param {string} binaryPath Path to the font binary file(.eot, .ttf etc.)
+ * @param {string} family     The name to give the font
+ * @param {number} weight     The font weight to use
+ * @param {string} style      Font style
+ * @param {string} variant    Font variant
+ *
+ * @returns {void}
+ */
+exports.registerFont = function(binaryPath, family, weight, style, variant) {
+    _fonts[family] = {
+        binary: binaryPath,
+        family: family,
+        weight: weight,
+        style: style,
+        variant: variant,
+        loaded: false,
+        font: null,
+        load: function(cb) {
+            if(this.loaded) {
+                if(cb)cb();
+                return;
+            }
+            var self = this;
+            opentype.load(binaryPath, function (err, font) {
+                if (err) throw new Error(&apos;Could not load font: &apos; + err);
+                self.loaded = true;
+                self.font = font;
+                if(cb)cb();
+            });
+        }
+    };
+    return _fonts[family];
+};
+/**@ignore */
+exports.debug_list_of_fonts = _fonts;
+
+/**
+ * Find Font
+ *
+ * Search the `fonts` array for a given font family name
+ *
+ * @param {string} family The name of the font family to search for
+ *
+ * @returns {object}
+ */
+function findFont(family) {
+    if(_fonts[family]) return _fonts[family];
+    family =  Object.keys(_fonts)[0];
+    return _fonts[family];
+}
+
+/**
+ * Process Text Path
+ *
+ * @param {Context} ctx  The {@link Context} to paint on
+ * @param {string}  text The text to write to the given Context
+ * @param {number}  x    X position
+ * @param {number}  y    Y position
+ * @param {boolean} fill Indicates wether or not the font should be filled
+ *
+ * @returns {void}
+ */
+exports.processTextPath = function(ctx,text,x,y, fill, hAlign, vAlign) {
+    let font = findFont(ctx._font.family);
+    if(!font) {
+        console.warn(&quot;Font missing&quot;,ctx._font)
+    }
+    const metrics = exports.measureText(ctx,text)
+    if(hAlign === &apos;start&apos; || hAlign === &apos;left&apos;) /* x = x*/ ;
+    if(hAlign === &apos;end&apos;   || hAlign === &apos;right&apos;)  x = x - metrics.width
+    if(hAlign === &apos;center&apos;)  x = x - metrics.width/2
+
+    if(vAlign === &apos;alphabetic&apos;) /* y = y */ ;
+    if(vAlign === &apos;top&apos;) y = y + metrics.emHeightAscent
+    if(vAlign === &apos;middle&apos;) y = y + metrics.emHeightAscent/2+metrics.emHeightDescent/2
+    if(vAlign === &apos;bottom&apos;) y = y + metrics.emHeightDescent
+    var size = ctx._font.size;
+    if(ctx.USE_FONT_GLYPH_CACHING) {
+        var off = 0;
+        for(var i=0; i&lt;text.length; i++) {
+            var ch = text[i];
+            if(!cache.contains(font,size,ch)) {
+                var glyph = renderGlyphToBitmap(font,ch,size);
+                cache.insert(font,size,ch,glyph);
+            }
+            var glyph = cache.get(font,size,ch);
+            var fx = x+off;
+            var fy = y-glyph.ascent;
+            var fpt = ctx.transform.transformPoint(fx,fy);
+            ctx.copyImage(glyph.bitmap, Math.floor(fpt.x), Math.floor(fpt.y), ctx._fillColor);
+            off += glyph.advance;
+        }
+    } else {
+        var path = font.font.getPath(text, x, y, size);
+        ctx.beginPath();
+        path.commands.forEach(function(cmd) {
+            switch(cmd.type) {
+                case &apos;M&apos;: ctx.moveTo(cmd.x,cmd.y); break;
+                case &apos;Q&apos;: ctx.quadraticCurveTo(cmd.x1,cmd.y1,cmd.x,cmd.y); break;
+                case &apos;L&apos;: ctx.lineTo(cmd.x,cmd.y); break;
+                case &apos;Z&apos;:
+                {
+                    ctx.closePath();
+                    fill ? ctx.fill() : ctx.stroke();
+                    ctx.beginPath();
+                    break;
+                }
+            }
+        });
+    }
+};
+
+/**
+ * Process Text Path
+ *
+ * @param {Context} ctx The {@link Context} to paint on
+ * @param {string} text The name to give the font
+ *
+ * @returns {object}
+ */
+exports.measureText = function(ctx,text) {
+    let font = findFont(ctx._font.family);
+    if(!font) console.warn(&quot;WARNING. Can&apos;t find font family &quot;, ctx._font);
+    var fsize   = ctx._font.size;
+    var glyphs  = font.font.stringToGlyphs(text);
+    var advance = 0;
+    glyphs.forEach(function(g) { advance += g.advanceWidth; });
+
+    return {
+        width: advance/font.font.unitsPerEm*fsize,
+        emHeightAscent: font.font.ascender/font.font.unitsPerEm*fsize,
+        emHeightDescent: font.font.descender/font.font.unitsPerEm*fsize,
+    };
+};
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

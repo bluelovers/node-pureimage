@@ -1,0 +1,89 @@
+{
+  "coverage": "80.43%",
+  "expectCount": 138,
+  "actualCount": 111,
+  "files": {
+    "src/Gradient.js": {
+      "expectCount": 14,
+      "actualCount": 0,
+      "undocumentLines": [
+        5,
+        6,
+        7,
+        9,
+        13,
+        21,
+        22,
+        24,
+        25,
+        28,
+        46,
+        47,
+        49,
+        52
+      ]
+    },
+    "src/Line.js": {
+      "expectCount": 5,
+      "actualCount": 5,
+      "undocumentLines": []
+    },
+    "src/Point.js": {
+      "expectCount": 9,
+      "actualCount": 4,
+      "undocumentLines": [
+        26,
+        33,
+        37,
+        41,
+        45
+      ]
+    },
+    "src/bitmap.js": {
+      "expectCount": 11,
+      "actualCount": 11,
+      "undocumentLines": []
+    },
+    "src/context.js": {
+      "expectCount": 80,
+      "actualCount": 74,
+      "undocumentLines": [
+        1230,
+        1239,
+        1257,
+        1273,
+        208,
+        211
+      ]
+    },
+    "src/named_colors.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/pureimage.js": {
+      "expectCount": 7,
+      "actualCount": 6,
+      "undocumentLines": [
+        5
+      ]
+    },
+    "src/text.js": {
+      "expectCount": 7,
+      "actualCount": 7,
+      "undocumentLines": []
+    },
+    "src/transform.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/util.js": {
+      "expectCount": 3,
+      "actualCount": 2,
+      "undocumentLines": [
+        40
+      ]
+    }
+  }
+}

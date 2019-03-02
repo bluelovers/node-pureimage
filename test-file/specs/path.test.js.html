@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">specs/path.test.js | pureimage</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="pureimage"><meta property="twitter:description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/joshmarinacci/node-pureimage.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Line.js~Line.html">Line</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Point.js~Point.html">Point</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/bitmap.js~Bitmap.html">Bitmap</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/context.js~Context.html">Context</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodeJPEGFromStream">decodeJPEGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodePNGFromStream">decodePNGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodeJPEGToStream">encodeJPEGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodePNGToStream">encodePNGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-make">make</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-measureText">measureText</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processTextPath">processTextPath</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-registerFont">registerFont</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clamp">clamp</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-colorStringToUint32">colorStringToUint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-NAMED_COLORS">NAMED_COLORS</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">specs/path.test.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">const pureimage = require(&apos;pureimage&apos;)
+const fs = require(&apos;fs&apos;)
+describe(&apos;draw curve&apos;,() =&gt; {
+    let image;
+    let c;
+    const WHITE = 0xFFFFFFFF
+    const BLACK = 0x000000FF
+
+    beforeEach(() =&gt; {
+        image = pureimage.make(200,200)
+        c = image.getContext(&apos;2d&apos;)
+        c.fillStyle = &apos;white&apos;
+        c.fillRect(0,0,200,200)
+    })
+
+    it(&apos;canvas is empty and clear&apos;, (done) =&gt; {
+        expect(image.getPixelRGBA(0,0)).toBe(WHITE)
+        done()
+    })
+
+    //draw square
+    it(&apos;making a square&apos;, (done) =&gt; {
+        c.beginPath()
+        c.moveTo(10,10)
+        c.lineTo(100,10)
+        c.lineTo(100,100)
+        c.lineTo(10,100)
+        c.lineTo(10,10)
+        c.fillStyle = &apos;black&apos;
+        c.fill()
+        expect(image.getPixelRGBA(0,0)).toBe(WHITE)
+        expect(image.getPixelRGBA(11,11)).toBe(BLACK)
+        expect(image.getPixelRGBA(50,50)).toBe(BLACK)
+        expect(image.getPixelRGBA(100,100)).toBe(WHITE)
+        done()
+    })
+
+    //draw bezier curve
+    it(&apos;bezier curve&apos;, (done) =&gt; {
+        c.fillStyle = &apos;white&apos;
+        c.fillRect(0,0,200,200)
+
+        c.fillStyle = &apos;black&apos;
+        c.beginPath()
+        c.moveTo(10,10)
+        c.bezierCurveTo(50,50, 100,50, 10,100)
+        c.lineTo(10,10)
+        c.fill()
+        pureimage.encodePNGToStream(image, fs.createWriteStream(&apos;bezier1.png&apos;)).then(() =&gt; {
+            console.log(&apos;wrote out bezier1.png&apos;)
+            // expect(image.getPixelRGBA(0, 0)).toBe(0xFFFFFFFF)
+            // expect(image.getPixelRGBA(19, 19)).toBe(0x0C0CFFFF)
+            done()
+        })
+
+        // expect(image.getPixelRGBA(0,0)).toBe(WHITE)
+        // expect(image.getPixelRGBA(20,15)).toBe(BLACK)
+        // done()
+    })
+
+
+})
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

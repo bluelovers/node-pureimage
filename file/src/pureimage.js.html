@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/pureimage.js | pureimage</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="pureimage"><meta property="twitter:description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/joshmarinacci/node-pureimage.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Line.js~Line.html">Line</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Point.js~Point.html">Point</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/bitmap.js~Bitmap.html">Bitmap</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/context.js~Context.html">Context</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodeJPEGFromStream">decodeJPEGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodePNGFromStream">decodePNGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodeJPEGToStream">encodeJPEGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodePNGToStream">encodePNGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-make">make</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-measureText">measureText</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processTextPath">processTextPath</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-registerFont">registerFont</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clamp">clamp</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-colorStringToUint32">colorStringToUint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-NAMED_COLORS">NAMED_COLORS</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/pureimage.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">const Bitmap = require(&apos;./bitmap&apos;);
+const fs     = require(&apos;fs&apos;);
+const JPEG   = require(&apos;jpeg-js&apos;);
+const PNG_LIB    = require(&apos;pngjs&apos;)
+const PNG = PNG_LIB.PNG;
+const text   = require(&apos;./text&apos;);
+const uint32 = require(&apos;./uint32&apos;);
+
+/**
+ * Create a new bitmap image
+ *
+ * @param {number} w       Image width
+ * @param {number} h       Image height
+ * @param {object} options Options to be passed to {@link Bitmap}
+ *
+ * @returns {Bitmap}
+ */
+exports.make = function(w,h,options) {
+    return new Bitmap(w,h,options);
+};
+
+/**
+ * Encode the PNG image to output stream
+ *
+ * @param {Bitmap} bitmap    An instance of {@link Bitmap} to be encoded to PNG, `bitmap.data` must be a buffer of raw PNG data
+ * @param {Stream} outstream The stream to write the PNG file to
+ *
+ * @returns {Promise&lt;void&gt;}
+ */
+exports.encodePNGToStream = function(bitmap, outstream) {
+    return new Promise((res,rej)=&gt;{
+        if(!bitmap.hasOwnProperty(&apos;data&apos;) || !bitmap.hasOwnProperty(&apos;width&apos;) || !bitmap.hasOwnProperty(&apos;height&apos;)) {
+            rej(new TypeError(&apos;Invalid bitmap image provided&apos;));
+        }
+        var png = new PNG({
+            width:bitmap.width,
+            height:bitmap.height
+        });
+
+        for(var i=0; i&lt;bitmap.width; i++) {
+            for(var j=0; j&lt;bitmap.height; j++) {
+                var rgba = bitmap.getPixelRGBA(i,j);
+                var n = (j*bitmap.width+i)*4;
+                var bytes = uint32.getBytesBigEndian(rgba);
+                for(var k=0; k&lt;4; k++) {
+                    png.data[n+k] = bytes[k];
+                }
+            }
+        }
+
+        png
+            .on(&apos;error&apos;, (err) =&gt; { rej(err); })
+            .pack()
+            .pipe(outstream)
+            .on(&apos;finish&apos;, () =&gt; { res(); })
+            .on(&apos;error&apos;, (err) =&gt; { rej(err); });
+    });
+}
+
+/**
+ * Encode JPEG To Stream
+ *
+ * Encode the JPEG image to output stream
+ *
+ * @param {Bitmap} img       An instance of {@link Bitmap} to be encoded to JPEG, `img.data` must be a buffer of raw JPEG data
+ * @param {Stream} outstream The stream to write the raw JPEG buffer to
+ * @returns {Promise&lt;void&gt;}
+ */
+exports.encodeJPEGToStream = function(img, outstream) {
+    return new Promise((res,rej)=&gt; {
+        if(!img.hasOwnProperty(&apos;data&apos;) || !img.hasOwnProperty(&apos;width&apos;) || !img.hasOwnProperty(&apos;height&apos;)) {
+            rej(new TypeError(&apos;Invalid bitmap image provided&apos;));
+        }
+        var data = {
+            data: img.data,
+            width: img.width,
+            height: img.height
+        };
+        outstream.on(&apos;error&apos;, (err) =&gt; rej(err));
+        outstream.write(JPEG.encode(data, 50).data, () =&gt; {
+            outstream.end();
+            res();
+        });
+    });
+};
+
+/**
+ * Decode JPEG From Stream
+ *
+ * Decode a JPEG image from an incoming stream of data
+ *
+ * @param {Stream} data A readable stream to decode JPEG data from
+ *
+ * @returns {Promise&lt;Bitmap&gt;}
+ */
+exports.decodeJPEGFromStream = function(data) {
+    return new Promise((res,rej)=&gt;{
+        try {
+            var chunks = [];
+            data.on(&apos;data&apos;, chunk =&gt; chunks.push(chunk));
+            data.on(&apos;end&apos;,() =&gt; {
+                var buf = Buffer.concat(chunks);
+                var rawImageData = JPEG.decode(buf);
+                var bitmap = new Bitmap(rawImageData.width, rawImageData.height);
+                for (var x_axis = 0; x_axis &lt; rawImageData.width; x_axis++) {
+                    for (var y_axis = 0; y_axis &lt; rawImageData.height; y_axis++) {
+                        var n = (y_axis * rawImageData.width + x_axis) * 4;
+                        bitmap.setPixelRGBA_i(x_axis, y_axis,
+                            rawImageData.data[n + 0],
+                            rawImageData.data[n + 1],
+                            rawImageData.data[n + 2],
+                            rawImageData.data[n + 3]
+                        );
+                    }
+                }
+                res(bitmap);
+            });
+        } catch (e) {
+            console.log(e);
+            rej(e);
+        }
+    });
+};
+
+/**
+ * Decode PNG From Stream
+ *
+ * Decode a PNG file from an incoming readable stream
+ *
+ * @param {Stream} instream A readable stream containing raw PNG data
+ *
+ * @returns {Promise&lt;Bitmap&gt;}
+ */
+exports.decodePNGFromStream = function(instream) {
+    return new Promise((res,rej)=&gt;{
+        instream.pipe(new PNG())
+            .on(&quot;parsed&quot;, function() {
+                var bitmap =  new Bitmap(this.width,this.height);
+                for(var i=0; i&lt;bitmap.data.length; i++) {
+                    bitmap.data[i] = this.data[i];
+                };
+                res(bitmap);
+            });
+    })
+};
+
+/**@ignore */
+exports.registerFont = text.registerFont;
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

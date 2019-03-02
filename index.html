@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">Home | pureimage</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."><meta property="twitter:card" content="summary"><meta property="twitter:title" content="pureimage"><meta property="twitter:description" content="Pure JS image drawing API based on Canvas. Export to PNG streams."></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/joshmarinacci/node-pureimage.git"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Line.js~Line.html">Line</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Point.js~Point.html">Point</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/bitmap.js~Bitmap.html">Bitmap</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/context.js~Context.html">Context</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodeJPEGFromStream">decodeJPEGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-decodePNGFromStream">decodePNGFromStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodeJPEGToStream">encodeJPEGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-encodePNGToStream">encodePNGToStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-make">make</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-measureText">measureText</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processTextPath">processTextPath</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-registerFont">registerFont</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clamp">clamp</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-colorStringToUint32">colorStringToUint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-NAMED_COLORS">NAMED_COLORS</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><p><a href="https://travis-ci.org/joshmarinacci/node-pureimage"><img src="https://travis-ci.org/joshmarinacci/node-pureimage.svg?branch=master" alt="Build Status"></a></p>
+<h1 id="pureimage">PureImage</h1><p>PureImage is a pure JavaScript implementation of the HTML Canvas 2d drawing api for NodeJS.
+It has no native dependencies.</p>
+<h1 id="new-0-1-x-release">New 0.1.x release</h1><p>I&apos;ve completely refactored the code so that it should be easier to
+maintain and implement new features. For the most part there are no API changes (since the API is
+ defined by the HTML Canvas spec), but if you
+were using the font or image loading extensions
+you will need to use the new function names and switch to promises. For more information, please see <a href="http://joshmarinacci.github.io/node-pureimage">the API docs</a></p>
+<p>I&apos;m also using Node buffers instead of arrays internally, so you can work with large images
+faster than before. Rich text is no longer supported, which is fine because it never really worked
+anyway. We&apos;ll have to find a different way to do it.</p>
+<p>I&apos;ve tried to maintain all of the patches that have been sent in, but if you contributed a patch
+please check that it still works. Thank you all!  - josh</p>
+<h2 id="supported-canvas-features">supported Canvas Features</h2><ul>
+<li>set pixels</li>
+<li>stroke and fill paths (rectangles, lines, quadratic curves, bezier curves, arcs/circles)</li>
+<li>copy and scale images (nearest neighbor)</li>
+<li>import and export JPG and PNG from streams using promises</li>
+<li>render basic text (no bold or italics yet)</li>
+<li>anti-aliased strokes and fills</li>
+<li>transforms</li>
+<li>standard globalAlpha and rgba() alpha compositing</li>
+<li>clip shapes</li>
+</ul>
+<h1 id="on-the-roadmap--but-still-missing">On the roadmap, but still missing</h1><ul>
+<li>gradients fills</li>
+<li>image fills</li>
+<li>blend modes besides SRC OVER</li>
+<li>smooth clip shapes</li>
+<li>bold/italic fonts</li>
+<li>measure text</li>
+<li>smooth image interpolation</li>
+</ul>
+<h1 id="why-">Why?</h1><p>The are more than enough drawing APIs out there. Why do we need another? My
+personal hatred of C/C++ compilers is <a href="https://joshondesign.com/2014/09/17/rustlang">widely known</a>.
+The popular Node modules <a href="https://github.com/Automattic/node-canvas">Canvas.js</a> does a great
+job, but it&apos;s backed by Cairo, a C/C++ layer. I hate having native dependencies
+in Node modules. They often don&apos;t compile, or break after a system update. They
+often don&apos;t support non-X86 architectures (like the Raspberry Pi). You have
+to have a compiler already installed to use them, along with any other native
+dependencies pre-installed (like Cairo).</p>
+<p>So, I made PureImage. It&apos;s goal is to implement the HTML Canvas spec in a headless
+Node buffer. No browser or window required.</p>
+<p>PureImage is meant to be a small and maintainable Canvas library.
+It is <em>not meant to be fast</em>.  If there are two choices of algorithm we will
+take the one with the simplest implementation, and preferably the fewest lines.
+We avoid special cases and optimizations to keep the code simple and maintainable.
+It should run everywhere and be always produce the same output. But it will not be
+fast. If you need speed go use something else.</p>
+<p>PureImage uses only pure JS dependencies.  <a href="https://github.com/nodebox/opentype.js/">OpenType</a>
+for font parsing, <a href="https://github.com/niegowski/node-pngjs">PngJS</a> for PNG import/export,
+and <a href="https://github.com/eugeneware/jpeg-js">jpeg-js</a> for JPG import/export.</p>
+<h1 id="documentation">Documentation</h1><p>Documentation can now be found at: <a href="http://joshmarinacci.github.io/node-pureimage">http://joshmarinacci.github.io/node-pureimage</a></p>
+<h1 id="examples">Examples</h1><p>Make a new empty image, 100px by 50px. Automatically filled with 100% opaque black.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">var PImage = require(&apos;pureimage&apos;);
+var img1 = PImage.make(100,50);</code>
+</code></pre>
+<p>Fill with a red rectangle with 50% opacity</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">var ctx = img1.getContext(&apos;2d&apos;);
+ctx.fillStyle = &apos;rgba(255,0,0, 0.5)&apos;;
+ctx.fillRect(0,0,100,100);</code>
+</code></pre>
+<p>Fill a green circle with a radius of 40 pixels in the middle of a 100px square black image.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">var img = PImage.make(100,100);
+var ctx = img.getContext(&apos;2d&apos;);
+ctx.fillStyle = &apos;#00ff00&apos;;
+ctx.beginPath();
+ctx.arc(50,50,40,0,Math.PI*2,true); // Outer circle
+ctx.closePath();
+ctx.fill();</code>
+</code></pre>
+<p><img src="firstimages/arcto.png" alt="image of arcto with some fringing bugs"></p>
+<p>Draw the string &apos;ABC&apos; in white in the font &apos;Source Sans Pro&apos;, loaded from disk, at a size
+of 48 points.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">test(&apos;font test&apos;, (t) =&gt; {
+    var fnt = PImage.registerFont(&apos;tests/fonts/SourceSansPro-Regular.ttf&apos;,&apos;Source Sans Pro&apos;);
+    fnt.load(() =&gt; {
+        var img = PImage.make(200,200);
+        var ctx = img.getContext(&apos;2d&apos;);
+        ctx.fillStyle = &apos;#ffffff&apos;;
+        ctx.font = &quot;48pt &apos;Source Sans Pro&apos;&quot;;
+        ctx.fillText(&quot;ABC&quot;, 80, 80);
+    });
+});</code>
+</code></pre>
+<p>Write out to a PNG file</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">PImage.encodePNGToStream(img1, fs.createWriteStream(&apos;out.png&apos;)).then(() =&gt; {
+    console.log(&quot;wrote out the png file to out.png&quot;);
+}).catch((e)=&gt;{
+    console.log(&quot;there was an error writing&quot;);
+});</code>
+</code></pre>
+<p>Read a jpeg, resize it, then save it out</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">PImage.decodeJPEGFromStream(fs.createReadStream(&quot;tests/images/bird.jpg&quot;)).then((img) =&gt; {
+    console.log(&quot;size is&quot;,img.width,img.height);
+    var img2 = PImage.make(50,50);
+    var c = img2.getContext(&apos;2d&apos;);
+    c.drawImage(img,
+        0, 0, img.width, img.height, // source dimensions
+        0, 0, 50, 50                 // destination dimensions
+    );
+    var pth = path.join(BUILD_DIR,&quot;resized_bird.jpg&quot;);
+    PImage.encodeJPEGToStream(img2,fs.createWriteStream(pth)).then(() =&gt; {
+        console.log(&quot;done writing&quot;);
+    });
+});</code>
+</code></pre>
+<h1 id="thanks-">Thanks!</h1><p>Thanks to Nodebox / EMRG for <a href="https://github.com/nodebox/opentype.js/">opentype.js</a></p>
+<p>Thanks to Rosetta Code for <a href="http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#JavaScript">Bresenham&apos;s in JS</a></p>
+<p>Thanks to Kuba Niegowski for <a href="https://github.com/niegowski/node-pngjs">PngJS</a></p>
+<p>Thanks to Eugene Ware for <a href="https://github.com/eugeneware/jpeg-js">jpeg-js</a></p>
+<p>Thanks for patches from:</p>
+<ul>
+<li>Dan <a href="https://github.com/danielbarela">danielbarela</a></li>
+<li>Eugene Kulabuhov <a href="https://github.com/ekulabuhov">ekulabuhov</a></li>
+<li>Lethexa <a href="https://github.com/lethexa">lethexa</a></li>
+<li>The Louie <a href="https://github.com/the-louie">the-louie</a></li>
+<li>Jan Marsch <a href="https://github.com/kekscom">kekscom</a></li>
+</ul>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
